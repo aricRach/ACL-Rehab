@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { RomStatus } from '../../models/RomStatus';
+import { NumberInput } from '../ui/NumberInput';
+import './RomInput.scss';
 
 export default function RomInput({
   value,
@@ -11,64 +13,61 @@ export default function RomInput({
 
   const [draft, setDraft] = useState<RomStatus>(value);
 
-  useEffect(() => {
-    setDraft(value);
-  }, [value]);
+  const handleFieldChange = (name: string, newValue: number) => {
+    setDraft((prev) => ({
+      ...prev,
+      [name]: newValue
+    }));
+  };
 
   const errors = {
     extension: draft.extension < 0 || draft.extension > 40,
     flexion: draft.flexion < 0 || draft.flexion > 140
   };
-
   const hasError = Object.values(errors).some(Boolean);
 
-  return (
-    <div className="p-4 border rounded space-y-2">
-      <h3 className="font-bold">ROM</h3>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hasError) {
+      onSave(draft);
+    }
+  };
 
-      <label>Extension (°)</label>
-      <input
-        type="number"
+  return (
+    <form className="rom-form p-4 border rounded" onSubmit={handleSubmit}>
+      <h3 className="font-bold mb-4">ROM</h3>
+
+      <NumberInput
+        label="Extension (°)"
+        name="extension"
         value={draft.extension}
-        onChange={e =>
-          setDraft({ ...draft, extension: +e.target.value })
-        }
-        className={`input ${
-          errors.extension ? 'border-red-500' : ''
-        }`}
+        onChange={handleFieldChange}
+        min={0}
+        max={40}
       />
       {errors.extension && (
-        <p className="text-sm text-red-600">
-          Extension must be between 0° and 40°
-        </p>
+        <p className="text-sm text-red-600 mb-2">Extension: 0° to 40°</p>
       )}
 
-      <label>Flexion (°)</label>
-      <input
-        type="number"
+      <NumberInput
+        label="Flexion (°)"
+        name="flexion"
         value={draft.flexion}
-        onChange={e =>
-          setDraft({ ...draft, flexion: +e.target.value })
-        }
-        className={`input ${
-          errors.flexion ? 'border-red-500' : ''
-        }`}
+        onChange={handleFieldChange}
+        min={0}
+        max={140}
       />
       {errors.flexion && (
-        <p className="text-sm text-red-600">
-          Flexion must be between 0° and 140°
-        </p>
+        <p className="text-sm text-red-600 mb-2">Flexion: 0° to 140°</p>
       )}
 
       <button
+        type="submit"
         disabled={hasError}
-        onClick={() => onSave(draft)}
-        className={`mt-2 px-4 py-2 rounded text-white
-          ${hasError ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600'}
-        `}
+        className={`submit-btn ${hasError ? 'disabled' : 'active'}`}
       >
         Save ROM
       </button>
-    </div>
+    </form>
   );
 }

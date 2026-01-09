@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { DailyLog } from '../../models/DailyLog';
 import {NumberInput} from '../ui/NumberInput';
+import './DailyLogForm.scss';
 
 export default function DailyLogForm({
   date,

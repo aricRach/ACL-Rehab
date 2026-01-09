@@ -1,0 +1,27 @@
+.rom-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+
+  .submit-btn {
+    align-self: center;
+    margin-top: 10px;
+    padding: 8px 20px;
+    border-radius: 6px;
+    color: white;
+    border: none;
+    transition: background 0.2s;
+
+    &.active {
+      background-color: #16a34a; // bg-green-600
+      cursor: pointer;
+      &:hover { background-color: #15803d; }
+    }
+
+    &.disabled {
+      background-color: #9ca3af; // bg-gray-400
+      cursor: not-allowed;
+    }
+  }
+}
