@@ -1,8 +1,13 @@
 .rom-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    margin-top: 15px;
+
+  label {
+    min-width: 90px;
+  }
 
   .submit-btn {
     align-self: center;

@@ -1,10 +1,11 @@
-form.daily-log {
+form {
   display: flex;
     justify-content: center;
     gap: 10px;
+    flex-direction: column;
     button[type="submit"] {
     align-self: center;
-    padding: 8px 24px; 
+    padding: 10px 5px;
     margin-top: 10px;
   }
   h3 {

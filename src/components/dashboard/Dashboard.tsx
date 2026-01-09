@@ -11,21 +11,20 @@ import type { RomStatus } from '../../models/RomStatus';
 import RomInput from '../rom/RomInput';
 import { loadRom, saveRom } from '../../services/rom.service';
 import type { DailyLog } from '../../models/DailyLog';
+import './Dashboard.scss';
+
 export default function Dashboard() {
 
-      const today = new Date().toISOString().slice(0, 10);
+const today = new Date().toISOString().slice(0, 10);
 const [selectedDate, setSelectedDate] = useState(today);
 
-    const SURGERY_DATE = new Date('2026-01-07');
+    const SURGERY_DATE = new Date('2025-08-07');
     const surgeryDate = SURGERY_DATE.toISOString().slice(0, 10);
     const [rom, setRom] = useState<RomStatus>(
-  () => loadRom() ?? { extension: 0, flexion: 90 }
+  () => loadRom() ?? { extension: 40, flexion: 0 }
 );
   const [logs, setLogs] = useState(() => {
-
     const logs = loadLogs();
-    console.log({logs});
-    
     return logs
   });
 
@@ -38,11 +37,8 @@ const selectedDateLog =
   const [draftLog, setDraftLog] = useState(selectedDateLog);
 
 useEffect(() => {
-  console.log('selectedDate', selectedDate);
-  console.log({selectedDateLog});
-
   setDraftLog(logs[selectedDate]);
-}, [logs, today, selectedDate]);
+}, [logs, selectedDate]);
 
 
 const handleRomChange = (newRom: RomStatus) => {
@@ -66,7 +62,7 @@ const handleDateChange = (value: string) => {
 
   const weekStart = getWeekStart(new Date());
   const weeklyTotal = aggregateWeekly(logs, weekStart);
-    const { phase, progress, gate } = calculateProgress(calcWeeksFromSurgery(), weeklyTotal, rom );
+    const { phase, progress, gate } = calculateProgress(calcWeeksFromSurgery(), weeklyTotal.totalMinutes, rom );
 
 const handleSave = (log: DailyLog) => {
   const updated = upsertLog(selectedDate, log);
@@ -80,49 +76,47 @@ const handleSave = (log: DailyLog) => {
     <ProgressBar percent={progress} />
        
        {!gate.passed && (
-         <p className="text-red-600 mt-2">Blocked: {gate.reason}</p>
+         <p className="text-red-600 mt-6">Blocked: {gate.reason}</p>
        )}
 <RomInput
   value={rom}
   onSave={handleRomChange}
 />
 
+  <div className="p-4 bg-white rounded shadow">
 
-  <div className="max-w-xl mx-auto space-y-4">
-
-      <DailyLogForm
-        key={selectedDate} // Forces a total reset only when data is ready
-        date={selectedDate}
-        value={draftLog}
-        onSave={handleSave}
-      />
-
-
-              <div className="p-4 bg-white rounded shadow">
-                  <h3 className="font-bold">This Week</h3>
-                  <p>{weeklyTotal} minutes total</p>
-              </div>
-          </div>
-
-          <div className="p-4 bg-white rounded shadow">
-
-
-
-
-
-
-
-  <label className="block font-bold mb-1">Select date</label>
+<label className="block font-bold mb-1">Select date</label>
 <input
   type="date"
   value={selectedDate}
   min={surgeryDate}
   max={today}
   onChange={e => handleDateChange(e.target.value)}
-  className="input"
-/>
-</div>
+  className="input"/>       
+  </div>
 
-          </>
+  <div className="max-w-xl mx-auto space-y-4">
+      <DailyLogForm
+        key={selectedDate} // Forces a total reset only when data is ready
+        phase={phase}
+        date={selectedDate}
+        value={draftLog ?? { 
+          physioMinutes: 0,
+        gymMinutes: 0,
+           footballMinutes: 0}}
+        onSave={handleSave}
+      />
+
+ <div className="p-4 bg-white rounded shadow space-y-2">
+  <h3 className="font-bold">This Week</h3>
+  <p className="text-sm text-gray-600">
+    {weeklyTotal.totalMinutes} minutes total
+  </p>
+  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${weeklyTotal.badge.color}`}>
+    {weeklyTotal.badge.label}
+  </span>
+</div>
+</div>
+ </>
   );
 }

@@ -12,6 +12,7 @@ export const NumberInput = ({ name, value, onChange, label, min = 0, max = 300 }
     <div className="form-group">
       <label htmlFor={name}>{label}</label>
       <input
+      placeholder="0"
       className="mt-2 mx-8 number-input"
         type="number"
         id={name}

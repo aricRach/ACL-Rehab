@@ -18,7 +18,7 @@ export function calculateProgress(
   const timeScore = Math.min(phase.maxProgress, weeksFromSurgery * 2);
   const activityScore = Math.min(phase.maxProgress, weeklyActivity / 10);
 
-  let progress = Math.min(phase.maxProgress, timeScore * 0.4 + activityScore * 0.6);
+  let progress = Math.min(phase.maxProgress, timeScore * 0.65 + activityScore * 0.35);
 
   const gate = checkRomGate(phase.id, rom);
   if (!gate.passed) {

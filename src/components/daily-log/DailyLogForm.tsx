@@ -2,21 +2,20 @@ import { useEffect, useState } from 'react';
 import type { DailyLog } from '../../models/DailyLog';
 import {NumberInput} from '../ui/NumberInput';
 import './DailyLogForm.scss';
+import type { Phase } from '../../models/phase';
 
 export default function DailyLogForm({
   date,
   value,
+  phase,
   onSave
 }: {
+  phase: Phase;
   date: string;
   value: DailyLog;
   onSave: (log: DailyLog) => void;
 }) {
-    const [formData, setFormData] = useState(value ?? {
-        physioMinutes: 0,
-        gymMinutes: 0,
-           footballMinutes: 0
-    });
+    const [formData, setFormData] = useState(value);
 
        useEffect(() => {
     setFormData(value)
@@ -39,7 +38,7 @@ export default function DailyLogForm({
 <>
 <h3 className="font-bold">Daily Log – {date}</h3>
 
- <form className='daily-log' onSubmit={handleSubmit}>
+ <form onSubmit={handleSubmit}>
   <section>
  <NumberInput 
         label="Physio (min):"
@@ -53,14 +52,14 @@ export default function DailyLogForm({
         value={formData.gymMinutes ? formData.gymMinutes : ''}
         onChange={handleFieldChange}
       />
-       <NumberInput 
+       {phase.id >= 4 && <NumberInput 
         label="Football (min):"
         name="footballMinutes"
         value={formData.footballMinutes ? formData.footballMinutes : ''}
         onChange={handleFieldChange}
-      />
+      />}
         </section>
-        <button type="submit">Submit</button>
+        <button type="submit">Save Activity</button>
 
  </form>
     </>
