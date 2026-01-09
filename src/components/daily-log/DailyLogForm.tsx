@@ -36,9 +36,9 @@ export default function DailyLogForm({
   return (
 
 <>
-<h3 className="font-bold">Daily Log – {date}</h3>
 
- <form onSubmit={handleSubmit}>
+ <form className='border rounded p-3' onSubmit={handleSubmit}>
+<h3 className="font-bold">Daily Log – {date}</h3>
   <section>
  <NumberInput 
         label="Physio (min):"
@@ -59,7 +59,7 @@ export default function DailyLogForm({
         onChange={handleFieldChange}
       />}
         </section>
-        <button type="submit">Save Activity</button>
+        <button className="submit-btn" type="submit">Save Activity</button>
 
  </form>
     </>

@@ -6,7 +6,7 @@ import {
   getWeekStart
 } from '../../services/weeklyAggregation.service';
 import ProgressBar from '../progress/ProgressBar';
-import { calculateProgress } from '../../services/progress.service';
+import { aggregateSinceSurgery, calculateProgress } from '../../services/progress.service';
 import type { RomStatus } from '../../models/RomStatus';
 import RomInput from '../rom/RomInput';
 import { loadRom, saveRom } from '../../services/rom.service';
@@ -60,9 +60,22 @@ const handleDateChange = (value: string) => {
   setSelectedDate(value);
 };
 
+
   const weekStart = getWeekStart(new Date());
   const weeklyTotal = aggregateWeekly(logs, weekStart);
-    const { phase, progress, gate } = calculateProgress(calcWeeksFromSurgery(), weeklyTotal.totalMinutes, rom );
+
+
+const totalActivity = aggregateSinceSurgery(logs, SURGERY_DATE);
+
+const weeksFromSurgery = calcWeeksFromSurgery() || 1;
+const avgWeeklyActivity = totalActivity / weeksFromSurgery;
+
+const { phase, progress, gate } = calculateProgress(
+  weeksFromSurgery,
+  avgWeeklyActivity,
+  rom
+);
+
 
 const handleSave = (log: DailyLog) => {
   const updated = upsertLog(selectedDate, log);
@@ -107,7 +120,7 @@ const handleSave = (log: DailyLog) => {
         onSave={handleSave}
       />
 
- <div className="p-4 bg-white rounded shadow space-y-2">
+ <div className="weekly-summary p-4 bg-white rounded shadow space-y-2">
   <h3 className="font-bold">This Week</h3>
   <p className="text-sm text-gray-600">
     {weeklyTotal.totalMinutes} minutes total

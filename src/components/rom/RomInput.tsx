@@ -34,9 +34,9 @@ export default function RomInput({
   };
 
   return (
-    <form className="rom-form p-4 border rounded" onSubmit={handleSubmit}>
+    <form className="rom-form p-3 border rounded" onSubmit={handleSubmit}>
       <h3 className="font-bold mb-4">ROM</h3>
-
+      <small>General rom not related to specific date.<br/> full extention - 0. full flextion - 140.</small>
       <NumberInput
         label="Extension (°)"
         name="extension"

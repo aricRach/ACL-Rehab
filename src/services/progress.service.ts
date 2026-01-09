@@ -2,6 +2,29 @@ import { PHASES } from '../data/phases';
 import { checkRomGate } from '../data/aclGates';
 import type { RomStatus } from '../models/RomStatus';
 
+import type { DailyLog } from '../models/DailyLog';
+
+export function aggregateSinceSurgery(
+  logs: Record<string, DailyLog>,
+  surgeryDate: Date
+) {
+  const surgeryTime = surgeryDate.getTime();
+
+  return Object.entries(logs)
+    .filter(([date]) => {
+      const d = new Date(date).getTime();
+      return d >= surgeryTime;
+    })
+    .reduce((sum, [, log]) => {
+      return (
+        sum +
+        log.physioMinutes +
+        log.gymMinutes +
+        log.footballMinutes
+      );
+    }, 0);
+}
+
 export function calculateProgress(
   weeksFromSurgery: number,
   weeklyActivity: number,
