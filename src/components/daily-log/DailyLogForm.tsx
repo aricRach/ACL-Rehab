@@ -38,7 +38,6 @@ export default function DailyLogForm({
 <>
 
  <form className='border rounded p-3' onSubmit={handleSubmit}>
-<h3 className="font-bold">Daily Log – {date}</h3>
   <section>
  <NumberInput 
         label="Physio (min):"

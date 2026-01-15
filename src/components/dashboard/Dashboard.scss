@@ -5,3 +5,14 @@
     flex-wrap: wrap;
     gap: 10px;
 }
+
+h3 {
+    text-align: center;
+}
+
+section.activity-date {
+        display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}

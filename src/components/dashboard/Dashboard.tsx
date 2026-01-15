@@ -12,16 +12,18 @@ import RomInput from '../rom/RomInput';
 import { loadRom, saveRom } from '../../services/rom.service';
 import type { DailyLog } from '../../models/DailyLog';
 import './Dashboard.scss';
+import { loadSurgeryDate, saveSurgeryDate } from '../../services/surgeryDate.service';
 
 export default function Dashboard() {
 
 const today = new Date().toISOString().slice(0, 10);
 const [selectedDate, setSelectedDate] = useState(today);
+const [surgeryDate, setSurgeryDate] = useState(() => loadSurgeryDate());
+const SURGERY_DATE = new Date(surgeryDate);
 
-    const SURGERY_DATE = new Date('2025-08-07');
-    const surgeryDate = SURGERY_DATE.toISOString().slice(0, 10);
+
     const [rom, setRom] = useState<RomStatus>(
-  () => loadRom() ?? { extension: 40, flexion: 0 }
+  () => loadRom() ?? { extension: 40, flexion: 40 }
 );
   const [logs, setLogs] = useState(() => {
     const logs = loadLogs();
@@ -84,7 +86,20 @@ const handleSave = (log: DailyLog) => {
 
   return (
     <>
-    <h2>Suregery Date: {surgeryDate}</h2>
+    <header className="p-4 bg-white rounded shadow space-y-1">
+    <label className="block font-bold mb-1">Suregery Date</label>
+
+  <input
+    type="date"
+    value={surgeryDate}
+    required
+    onChange={e => {
+      setSurgeryDate(e.target.value);
+      saveSurgeryDate(e.target.value);
+    }}
+    className="input"
+  />
+      </header>
     <h3 className="font-bold">Phase: {phase.name}</h3>
     <ProgressBar percent={progress} />
        
@@ -98,17 +113,21 @@ const handleSave = (log: DailyLog) => {
 
   <div className="p-4 bg-white rounded shadow">
 
-<label className="block font-bold mb-1">Select date</label>
+
+
+  <div className="max-w-xl mx-auto space-y-4">
+    <h3 className="font-bold">Daily Log</h3>
+    <section className="activity-date">
 <input
   type="date"
   value={selectedDate}
   min={surgeryDate}
   max={today}
   onChange={e => handleDateChange(e.target.value)}
-  className="input"/>       
+  className="input"/> 
+    </section>
+      
   </div>
-
-  <div className="max-w-xl mx-auto space-y-4">
       <DailyLogForm
         key={selectedDate} // Forces a total reset only when data is ready
         phase={phase}
