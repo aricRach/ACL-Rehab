@@ -1,8 +1,8 @@
 import { PHASES } from '../data/phases';
 import { checkRomGate } from '../data/aclGates';
 import type { RomStatus } from '../models/RomStatus';
-
 import type { DailyLog } from '../models/DailyLog';
+
 
 export function aggregateSinceSurgery(
   logs: Record<string, DailyLog>,
@@ -25,23 +25,74 @@ export function aggregateSinceSurgery(
     }, 0);
 }
 
+
+function calculateTimeScore(
+  weeksFromSurgery: number,
+  phaseMax: number
+) {
+  let timeScore: number;
+
+  if (weeksFromSurgery <= 4) {
+    // Very slow start (swelling, ROM, protection)
+    timeScore = weeksFromSurgery * 0.5;
+  } else if (weeksFromSurgery <= 12) {
+    // Moderate acceleration
+    timeScore = 2 + (weeksFromSurgery - 4) * 1.2;
+  } else {
+    // Stronger progress phase (strength, control, sport prep)
+    timeScore = 11.6 + (weeksFromSurgery - 12) * 1.5;
+  }
+
+  return Math.min(phaseMax, timeScore);
+}
+
+
 export function calculateProgress(
   weeksFromSurgery: number,
   weeklyActivity: number,
   rom: RomStatus
 ) {
-  
-  if(weeksFromSurgery < 0) {
-    return {progress: 0, phase: { id: 0, name: 'Rehab not started', minWeeks: -1, maxWeeks: -1, maxProgress: 0 }, gate: { passed: false, reason: 'Rehab not started', cap: 15 }}
+  // Surgery in the future
+  if (weeksFromSurgery < 0) {
+    return {
+      progress: 0,
+      phase: {
+        id: 0,
+        name: 'Rehab not started',
+        minWeeks: -1,
+        maxWeeks: -1,
+        maxProgress: 0
+      },
+      gate: {
+        passed: false,
+        reason: 'Rehab not started',
+        cap: 15
+      }
+    };
   }
+
+  // Find current phase
   const phase = PHASES.find(
-    p => weeksFromSurgery >= p.minWeeks && weeksFromSurgery <= p.maxWeeks
+    p =>
+      weeksFromSurgery >= p.minWeeks &&
+      weeksFromSurgery <= p.maxWeeks
   )!;
 
-  const timeScore = Math.min(phase.maxProgress, weeksFromSurgery * 2);
-  const activityScore = Math.min(phase.maxProgress, weeklyActivity / 10);
+  const timeScore = calculateTimeScore(
+    weeksFromSurgery,
+    phase.maxProgress
+  );
 
-  let progress = Math.min(phase.maxProgress, timeScore * 0.65 + activityScore * 0.35);
+  // Example: 300 min/week ≈ 30 points before weighting
+  const activityScore = Math.min(
+    phase.maxProgress,
+    weeklyActivity / 10
+  );
+
+  let progress = Math.min(
+    phase.maxProgress,
+    timeScore * 0.7 + activityScore * 0.3
+  );
 
   const gate = checkRomGate(phase.id, rom);
   if (!gate.passed) {
