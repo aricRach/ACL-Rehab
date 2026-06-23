@@ -40,7 +40,7 @@ function calculateTimeScore(
     timeScore = 2 + (weeksFromSurgery - 4) * 1.2;
   } else {
     // Stronger progress phase (strength, control, sport prep)
-    timeScore = 11.6 + (weeksFromSurgery - 12) * 1.5;
+    timeScore = 11.6 + (weeksFromSurgery - 12) * 2.0;
   }
 
   return Math.min(phaseMax, timeScore);
@@ -83,15 +83,15 @@ export function calculateProgress(
     phase.maxProgress
   );
 
-  // Example: 300 min/week ≈ 30 points before weighting
+  // 280 min/week (40 min/day) = full activity score
   const activityScore = Math.min(
     phase.maxProgress,
-    weeklyActivity / 10
+    (weeklyActivity / 280) * 100
   );
 
   let progress = Math.min(
     phase.maxProgress,
-    timeScore * 0.7 + activityScore * 0.3
+    timeScore * 0.6 + activityScore * 0.4
   );
 
   const gate = checkRomGate(phase.id, rom);
