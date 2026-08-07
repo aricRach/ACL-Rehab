@@ -13,6 +13,8 @@ import { loadRom, saveRom } from '../../services/rom.service';
 import type { DailyLog } from '../../models/DailyLog';
 import './Dashboard.scss';
 import { loadSurgeryDate, saveSurgeryDate } from '../../services/surgeryDate.service';
+import { buildWeeklyConsistency } from '../../services/consistency.service';
+import ConsistencyChart from '../progress/ConsistencyChart';
 
 export default function Dashboard() {
 
@@ -68,6 +70,7 @@ const handleDateChange = (value: string) => {
 
 
 const totalActivity = aggregateSinceSurgery(logs, SURGERY_DATE);
+const weeklyConsistency = buildWeeklyConsistency(logs, SURGERY_DATE);
 
 const weeksFromSurgery = calcWeeksFromSurgery() || 1;
 const avgWeeklyActivity = totalActivity / weeksFromSurgery;
@@ -148,6 +151,8 @@ const handleSave = (log: DailyLog) => {
     {weeklyTotal.badge.label}
   </span>
 </div>
+
+<ConsistencyChart data={weeklyConsistency} />
 </div>
  </>
   );
