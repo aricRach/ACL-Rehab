@@ -1,0 +1,30 @@
+.backup-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+
+  &__buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .submit-btn {
+    padding: 8px 20px;
+    border-radius: 6px;
+    color: white;
+    border: none;
+    transition: background 0.2s;
+
+    &.active {
+      background-color: #16a34a; // bg-green-600
+      cursor: pointer;
+      &:hover {
+        background-color: #15803d;
+      }
+    }
+  }
+}

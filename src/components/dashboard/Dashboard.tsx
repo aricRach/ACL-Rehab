@@ -15,6 +15,7 @@ import './Dashboard.scss';
 import { loadSurgeryDate, saveSurgeryDate } from '../../services/surgeryDate.service';
 import { buildWeeklyConsistency } from '../../services/consistency.service';
 import ConsistencyChart from '../progress/ConsistencyChart';
+import BackupControls from '../backup/BackupControls';
 
 export default function Dashboard() {
 
@@ -102,6 +103,7 @@ const handleSave = (log: DailyLog) => {
     }}
     className="input"
   />
+  <BackupControls />
       </header>
     <h3 className="font-bold">Phase: {phase.name}</h3>
     <ProgressBar percent={progress} />
