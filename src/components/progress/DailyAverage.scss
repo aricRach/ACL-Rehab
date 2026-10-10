@@ -1,0 +1,45 @@
+.daily-average {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  &__ranges {
+    display: flex;
+    border: 1px solid #16a34a;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  &__range {
+    padding: 6px 14px;
+    border: none;
+    background: white;
+    color: #16a34a;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    & + & {
+      border-left: 1px solid #16a34a;
+    }
+
+    &:hover {
+      background-color: #dcfce7;
+    }
+
+    &.active {
+      background-color: #16a34a; // bg-green-600
+      color: white;
+    }
+  }
+
+  &__value {
+    font-size: 2rem;
+    font-weight: bold;
+
+    span {
+      font-size: 1rem;
+      font-weight: normal;
+    }
+  }
+}

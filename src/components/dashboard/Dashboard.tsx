@@ -15,6 +15,7 @@ import './Dashboard.scss';
 import { loadSurgeryDate, saveSurgeryDate } from '../../services/surgeryDate.service';
 import { buildWeeklyConsistency } from '../../services/consistency.service';
 import ConsistencyChart from '../progress/ConsistencyChart';
+import DailyAverage from '../progress/DailyAverage';
 import BackupControls from '../backup/BackupControls';
 
 export default function Dashboard() {
@@ -152,6 +153,8 @@ const handleSave = (log: DailyLog) => {
     {weeklyTotal.badge.label}
   </span>
 </div>
+
+<DailyAverage logs={logs} surgeryDate={surgeryDate} today={today} />
 
 <ConsistencyChart data={weeklyConsistency} />
 </div>
