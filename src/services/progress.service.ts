@@ -63,7 +63,7 @@ function findPhase(weeksFromSurgery: number) {
 }
 
 
-// activityShare: 0 = no training, 1 = optimal training every week
+// activityShare: 0 = no training, 1 = optimal training on average
 function scoreWeek(weeksFromSurgery: number, activityShare: number) {
   const phase = findPhase(weeksFromSurgery);
 
@@ -107,18 +107,20 @@ export function calculateProgress(
   // Replay every week since surgery and keep the best score reached,
   // so a new week starting or a weak week never pulls progress down
   let progress = 0;
-  let credits = 0;
+  let totalMinutes = 0;
 
   for (let week = 0; week <= weekIndex; week++) {
-    // A week counts up to optimal, extra minutes don't cover for missed weeks
-    credits += Math.min(
+    totalMinutes += minutesByWeek[week] ?? 0;
+
+    // Average since surgery, so strong weeks cover for weak ones
+    const activityShare = Math.min(
       1,
-      (minutesByWeek[week] ?? 0) / OPTIMAL_WEEKLY_MINUTES
+      totalMinutes / ((week + 1) * OPTIMAL_WEEKLY_MINUTES)
     );
 
     progress = Math.max(
       progress,
-      scoreWeek(week || 1, credits / (week + 1))
+      scoreWeek(week || 1, activityShare)
     );
   }
 
