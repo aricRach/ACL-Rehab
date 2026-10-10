@@ -6,7 +6,7 @@ import {
   getWeekStart
 } from '../../services/weeklyAggregation.service';
 import ProgressBar from '../progress/ProgressBar';
-import { peakWeeklyAverage, calculateProgress } from '../../services/progress.service';
+import { aggregateMinutesByWeek, calculateProgress } from '../../services/progress.service';
 import type { RomStatus } from '../../models/RomStatus';
 import RomInput from '../rom/RomInput';
 import { loadRom, saveRom } from '../../services/rom.service';
@@ -73,12 +73,11 @@ const handleDateChange = (value: string) => {
 
 const weeklyConsistency = buildWeeklyConsistency(logs, SURGERY_DATE);
 
-const weeksFromSurgery = calcWeeksFromSurgery() || 1;
-const avgWeeklyActivity = peakWeeklyAverage(logs, SURGERY_DATE);
+const minutesByWeek = aggregateMinutesByWeek(logs, SURGERY_DATE);
 
 const { phase, progress, optimalProgress, gate } = calculateProgress(
-  weeksFromSurgery,
-  avgWeeklyActivity,
+  calcWeeksFromSurgery(),
+  minutesByWeek,
   rom
 );
 

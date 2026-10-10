@@ -6,9 +6,11 @@ import type { DailyLog } from '../models/DailyLog';
 
 const WEEK_MS = 1000 * 60 * 60 * 24 * 7;
 
-// Best weekly average reached at any point since surgery.
-// A plain running average drops every time a new week starts, so we keep the peak instead.
-export function peakWeeklyAverage(
+// 280 min/week (40 min/day) = optimal training
+const OPTIMAL_WEEKLY_MINUTES = 280;
+
+// Minutes logged in each week since surgery (index 0 = the week of the surgery)
+export function aggregateMinutesByWeek(
   logs: Record<string, DailyLog>,
   surgeryDate: Date
 ) {
@@ -27,15 +29,7 @@ export function peakWeeklyAverage(
       log.footballMinutes;
   });
 
-  let total = 0;
-  let peak = 0;
-
-  for (let week = 0; week < minutesByWeek.length; week++) {
-    total += minutesByWeek[week] ?? 0;
-    peak = Math.max(peak, total / (week || 1));
-  }
-
-  return peak;
+  return minutesByWeek;
 }
 
 
@@ -60,13 +54,38 @@ function calculateTimeScore(
 }
 
 
+function findPhase(weeksFromSurgery: number) {
+  return PHASES.find(
+    p =>
+      weeksFromSurgery >= p.minWeeks &&
+      weeksFromSurgery <= p.maxWeeks
+  )!;
+}
+
+
+// activityShare: 0 = no training, 1 = optimal training every week
+function scoreWeek(weeksFromSurgery: number, activityShare: number) {
+  const phase = findPhase(weeksFromSurgery);
+
+  const timeScore = calculateTimeScore(
+    weeksFromSurgery,
+    phase.maxProgress
+  );
+
+  return Math.min(
+    phase.maxProgress,
+    timeScore * 0.6 + phase.maxProgress * activityShare * 0.4
+  );
+}
+
+
 export function calculateProgress(
-  weeksFromSurgery: number,
-  weeklyActivity: number,
+  weekIndex: number,
+  minutesByWeek: number[],
   rom: RomStatus
 ) {
   // Surgery in the future
-  if (weeksFromSurgery < 0) {
+  if (weekIndex < 0) {
     return {
       progress: 0,
       optimalProgress: 0,
@@ -85,32 +104,29 @@ export function calculateProgress(
     };
   }
 
-  // Find current phase
-  const phase = PHASES.find(
-    p =>
-      weeksFromSurgery >= p.minWeeks &&
-      weeksFromSurgery <= p.maxWeeks
-  )!;
+  // Replay every week since surgery and keep the best score reached,
+  // so a new week starting or a weak week never pulls progress down
+  let progress = 0;
+  let credits = 0;
 
-  const timeScore = calculateTimeScore(
-    weeksFromSurgery,
-    phase.maxProgress
-  );
+  for (let week = 0; week <= weekIndex; week++) {
+    // A week counts up to optimal, extra minutes don't cover for missed weeks
+    credits += Math.min(
+      1,
+      (minutesByWeek[week] ?? 0) / OPTIMAL_WEEKLY_MINUTES
+    );
 
-  // 280 min/week (40 min/day) = full activity score, in every phase
-  const activityScore =
-    phase.maxProgress * Math.min(1, weeklyActivity / 280);
+    progress = Math.max(
+      progress,
+      scoreWeek(week || 1, credits / (week + 1))
+    );
+  }
 
-  let progress = Math.min(
-    phase.maxProgress,
-    timeScore * 0.6 + activityScore * 0.4
-  );
+  const weeksFromSurgery = weekIndex || 1;
+  const phase = findPhase(weeksFromSurgery);
 
-  // Same week and ROM, but with a full activity score
-  let optimalProgress = Math.min(
-    phase.maxProgress,
-    timeScore * 0.6 + phase.maxProgress * 0.4
-  );
+  // Same week and ROM, but with optimal training every week
+  let optimalProgress = scoreWeek(weeksFromSurgery, 1);
 
   const gate = checkRomGate(phase.id, rom);
   if (!gate.passed) {
