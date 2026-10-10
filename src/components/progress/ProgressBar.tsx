@@ -21,8 +21,8 @@ export default function ProgressBar({ percent, optimalPercent }: Props) {
       <p className="text-sm mt-1 text-center">{percent.toFixed(2)}%</p>
       <p className="text-sm text-gray-600 text-center">
         {missing >= 0.01
-          ? `With optimal training: ${optimalPercent.toFixed(2)}% (+${missing.toFixed(2)}%)`
-          : 'You are at the maximum for this week'}
+          ? `With optimal training since surgery: ${optimalPercent.toFixed(2)}% (+${missing.toFixed(2)}%)`
+          : 'You are at the maximum possible so far'}
       </p>
     </div>
   );

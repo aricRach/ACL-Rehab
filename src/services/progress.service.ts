@@ -97,11 +97,9 @@ export function calculateProgress(
     phase.maxProgress
   );
 
-  // 280 min/week (40 min/day) = full activity score
-  const activityScore = Math.min(
-    phase.maxProgress,
-    (weeklyActivity / 280) * 100
-  );
+  // 280 min/week (40 min/day) = full activity score, in every phase
+  const activityScore =
+    phase.maxProgress * Math.min(1, weeklyActivity / 280);
 
   let progress = Math.min(
     phase.maxProgress,
@@ -111,7 +109,7 @@ export function calculateProgress(
   // Same week and ROM, but with a full activity score
   let optimalProgress = Math.min(
     phase.maxProgress,
-    timeScore * 0.6 + Math.min(phase.maxProgress, 100) * 0.4
+    timeScore * 0.6 + phase.maxProgress * 0.4
   );
 
   const gate = checkRomGate(phase.id, rom);
