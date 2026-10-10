@@ -4,25 +4,38 @@ import type { RomStatus } from '../models/RomStatus';
 import type { DailyLog } from '../models/DailyLog';
 
 
-export function aggregateSinceSurgery(
+const WEEK_MS = 1000 * 60 * 60 * 24 * 7;
+
+// Best weekly average reached at any point since surgery.
+// A plain running average drops every time a new week starts, so we keep the peak instead.
+export function peakWeeklyAverage(
   logs: Record<string, DailyLog>,
   surgeryDate: Date
 ) {
   const surgeryTime = surgeryDate.getTime();
+  const minutesByWeek: number[] = [];
 
-  return Object.entries(logs)
-    .filter(([date]) => {
-      const d = new Date(date).getTime();
-      return d >= surgeryTime;
-    })
-    .reduce((sum, [, log]) => {
-      return (
-        sum +
-        log.physioMinutes +
-        log.gymMinutes +
-        log.footballMinutes
-      );
-    }, 0);
+  Object.entries(logs).forEach(([date, log]) => {
+    const d = new Date(date).getTime();
+    if (d < surgeryTime) return;
+
+    const week = Math.floor((d - surgeryTime) / WEEK_MS);
+    minutesByWeek[week] =
+      (minutesByWeek[week] ?? 0) +
+      log.physioMinutes +
+      log.gymMinutes +
+      log.footballMinutes;
+  });
+
+  let total = 0;
+  let peak = 0;
+
+  for (let week = 0; week < minutesByWeek.length; week++) {
+    total += minutesByWeek[week] ?? 0;
+    peak = Math.max(peak, total / (week || 1));
+  }
+
+  return peak;
 }
 
 
