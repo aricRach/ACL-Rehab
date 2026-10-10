@@ -76,7 +76,7 @@ const weeklyConsistency = buildWeeklyConsistency(logs, SURGERY_DATE);
 const weeksFromSurgery = calcWeeksFromSurgery() || 1;
 const avgWeeklyActivity = peakWeeklyAverage(logs, SURGERY_DATE);
 
-const { phase, progress, gate } = calculateProgress(
+const { phase, progress, optimalProgress, gate } = calculateProgress(
   weeksFromSurgery,
   avgWeeklyActivity,
   rom
@@ -106,7 +106,7 @@ const handleSave = (log: DailyLog) => {
   <BackupControls />
       </header>
     <h3 className="font-bold">Phase: {phase.name}</h3>
-    <ProgressBar percent={progress} />
+    <ProgressBar percent={progress} optimalPercent={optimalProgress} />
        
        {!gate.passed && (
          <p className="text-red-600 mt-6">Blocked: {gate.reason}</p>

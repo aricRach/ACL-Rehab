@@ -69,6 +69,7 @@ export function calculateProgress(
   if (weeksFromSurgery < 0) {
     return {
       progress: 0,
+      optimalProgress: 0,
       phase: {
         id: 0,
         name: 'Rehab not started',
@@ -107,10 +108,17 @@ export function calculateProgress(
     timeScore * 0.6 + activityScore * 0.4
   );
 
+  // Same week and ROM, but with a full activity score
+  let optimalProgress = Math.min(
+    phase.maxProgress,
+    timeScore * 0.6 + Math.min(phase.maxProgress, 100) * 0.4
+  );
+
   const gate = checkRomGate(phase.id, rom);
   if (!gate.passed) {
     progress = Math.min(progress, gate.cap);
+    optimalProgress = Math.min(optimalProgress, gate.cap);
   }
 
-  return { phase, progress, gate };
+  return { phase, progress, optimalProgress, gate };
 }
