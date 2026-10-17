@@ -6,8 +6,8 @@ import type { DailyLog } from '../models/DailyLog';
 
 const WEEK_MS = 1000 * 60 * 60 * 24 * 7;
 
-// 280 min/week (40 min/day) = optimal training
-const OPTIMAL_WEEKLY_MINUTES = 280;
+// 245 min/week (35 min/day) = optimal training
+const OPTIMAL_WEEKLY_MINUTES = 245;
 
 // Minutes logged in each week since surgery (index 0 = the week of the surgery)
 export function aggregateMinutesByWeek(
