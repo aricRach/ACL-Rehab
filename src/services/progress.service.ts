@@ -6,9 +6,6 @@ import type { DailyLog } from '../models/DailyLog';
 
 const WEEK_MS = 1000 * 60 * 60 * 24 * 7;
 
-// 245 min/week (35 min/day) = optimal training
-const OPTIMAL_WEEKLY_MINUTES = 245;
-
 // Minutes logged in each week since surgery (index 0 = the week of the surgery)
 export function aggregateMinutesByWeek(
   logs: Record<string, DailyLog>,
@@ -82,8 +79,12 @@ function scoreWeek(weeksFromSurgery: number, activityShare: number) {
 export function calculateProgress(
   weekIndex: number,
   minutesByWeek: number[],
-  rom: RomStatus
+  rom: RomStatus,
+  dailyGoalMinutes: number
 ) {
+  // Hitting the daily goal every day = optimal training
+  const optimalWeeklyMinutes = dailyGoalMinutes * 7;
+
   // Surgery in the future
   if (weekIndex < 0) {
     return {
@@ -115,7 +116,7 @@ export function calculateProgress(
     // Average since surgery, so strong weeks cover for weak ones
     const activityShare = Math.min(
       1,
-      totalMinutes / ((week + 1) * OPTIMAL_WEEKLY_MINUTES)
+      totalMinutes / ((week + 1) * optimalWeeklyMinutes)
     );
 
     progress = Math.max(

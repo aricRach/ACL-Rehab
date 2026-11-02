@@ -17,6 +17,7 @@ import { buildWeeklyConsistency } from '../../services/consistency.service';
 import ConsistencyChart from '../progress/ConsistencyChart';
 import DailyAverage from '../progress/DailyAverage';
 import BackupControls from '../backup/BackupControls';
+import { loadDailyGoal, saveDailyGoal } from '../../services/dailyGoal.service';
 
 export default function Dashboard() {
 
@@ -24,6 +25,9 @@ const today = new Date().toISOString().slice(0, 10);
 const [selectedDate, setSelectedDate] = useState(today);
 const [surgeryDate, setSurgeryDate] = useState(() => loadSurgeryDate());
 const SURGERY_DATE = new Date(surgeryDate);
+const [dailyGoal, setDailyGoal] = useState(() => loadDailyGoal());
+// What's typed in the field; only valid values become the goal
+const [dailyGoalInput, setDailyGoalInput] = useState(String(dailyGoal));
 
 
     const [rom, setRom] = useState<RomStatus>(
@@ -78,7 +82,8 @@ const minutesByWeek = aggregateMinutesByWeek(logs, SURGERY_DATE);
 const { phase, progress, optimalProgress, gate } = calculateProgress(
   calcWeeksFromSurgery(),
   minutesByWeek,
-  rom
+  rom,
+  dailyGoal
 );
 
 
@@ -100,6 +105,23 @@ const handleSave = (log: DailyLog) => {
       setSurgeryDate(e.target.value);
       saveSurgeryDate(e.target.value);
     }}
+    className="input"
+  />
+  <label className="block font-bold mb-1">Daily Goal (minutes)</label>
+
+  <input
+    type="number"
+    value={dailyGoalInput}
+    min={1}
+    max={600}
+    onChange={e => {
+      setDailyGoalInput(e.target.value);
+      const minutes = Number(e.target.value);
+      if (!(minutes > 0)) return;
+      setDailyGoal(minutes);
+      saveDailyGoal(minutes);
+    }}
+    onBlur={() => setDailyGoalInput(String(dailyGoal))}
     className="input"
   />
   <BackupControls />

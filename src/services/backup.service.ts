@@ -1,5 +1,5 @@
 // Every localStorage key the app owns. Keep in sync with the individual services.
-const BACKUP_KEYS = ['acl-logs', 'acl_rom', 'acl-surgery-date'] as const;
+const BACKUP_KEYS = ['acl-logs', 'acl_rom', 'acl-surgery-date', 'acl-daily-goal'] as const;
 
 export interface BackupFile {
   app: 'acl-rehab';
