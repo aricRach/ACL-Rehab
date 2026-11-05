@@ -16,6 +16,7 @@ import { loadSurgeryDate, saveSurgeryDate } from '../../services/surgeryDate.ser
 import { buildWeeklyConsistency } from '../../services/consistency.service';
 import ConsistencyChart from '../progress/ConsistencyChart';
 import DailyAverage from '../progress/DailyAverage';
+import WeekCalendar from '../progress/WeekCalendar';
 import BackupControls from '../backup/BackupControls';
 import { loadDailyGoal, saveDailyGoal } from '../../services/dailyGoal.service';
 
@@ -71,8 +72,16 @@ const handleDateChange = (value: string) => {
 };
 
 
-  const weekStart = getWeekStart(new Date());
+  // Follow the week shown in the calendar (the week of the selected date).
+  // Parse YYYY-MM-DD as a local date so the week doesn't shift by timezone.
+  const [selY, selM, selD] = selectedDate.split('-').map(Number);
+  const weekStart = getWeekStart(new Date(selY, selM - 1, selD));
   const weeklyTotal = aggregateWeekly(logs, weekStart);
+  const isCurrentWeek =
+    weekStart.getTime() === getWeekStart(new Date()).getTime();
+  const weekLabel = isCurrentWeek
+    ? 'This Week'
+    : `Week of ${weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
 
 const weeklyConsistency = buildWeeklyConsistency(logs, SURGERY_DATE);
@@ -166,7 +175,7 @@ const handleSave = (log: DailyLog) => {
       />
 
  <div className="weekly-summary p-4 bg-white rounded shadow space-y-2">
-  <h3 className="font-bold">This Week</h3>
+  <h3 className="font-bold">{weekLabel}</h3>
   <p className="text-sm text-gray-600">
     {weeklyTotal.totalMinutes} minutes total
   </p>
@@ -174,6 +183,14 @@ const handleSave = (log: DailyLog) => {
     {weeklyTotal.badge.label}
   </span>
 </div>
+
+<WeekCalendar
+  logs={logs}
+  selectedDate={selectedDate}
+  minDate={surgeryDate}
+  maxDate={today}
+  onSelectDate={handleDateChange}
+/>
 
 <DailyAverage logs={logs} surgeryDate={surgeryDate} today={today} />
 

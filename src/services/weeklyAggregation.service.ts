@@ -20,7 +20,9 @@ export function aggregateWeekly(
 
   const totalMinutes = Object.entries(logs)
     .filter(([date]) => {
-      const d = new Date(date);
+      // Parse YYYY-MM-DD as a local date to match weekStart (local midnight)
+      const [y, m, day] = date.split('-').map(Number);
+      const d = new Date(y, m - 1, day);
       return d >= weekStart && d < weekEnd;
     })
     .reduce((sum, [, log]) => {
